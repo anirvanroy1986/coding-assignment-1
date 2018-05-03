@@ -30,10 +30,10 @@ public class ConveyorGraph<T> {
      * @param v The vertex object. 
      */
     public void addVertex(ConveyorNode<T> v) {
-        if (this.adjacencyList.containsKey(v)) {
-            throw new IllegalArgumentException("Vertex already exists.");
+        if (!this.adjacencyList.containsKey(v)) {
+        	this.adjacencyList.put(v, new HashSet<ConveyorRoute<T>>());
         }
-        this.adjacencyList.put(v, new HashSet<ConveyorRoute<T>>());
+        
     }
     
     /**
@@ -43,7 +43,7 @@ public class ConveyorGraph<T> {
      * @param distance
      * @throws Exception
      */
-    public void addEdge(ConveyorNode<T> start, ConveyorNode<T> dest, int distance) throws Exception {
+    public void addEdge(ConveyorNode<T> start, ConveyorNode<T> dest, int distance) {
         if (!adjacencyList.containsKey(start)) {
         		addVertex(start);
         }

@@ -13,6 +13,13 @@ public class Flight {
 	private String departureGate;
 	private String destination;
 	private String time;
+	
+	public Flight(String flight, String gate, String dest, String time) {
+		this.flightNumber = flight;
+		this.departureGate = gate;
+		this.destination = dest;
+		this.time = time;
+	}
 	/**
 	 * @return the flightNumber
 	 */
