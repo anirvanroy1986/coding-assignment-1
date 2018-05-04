@@ -16,6 +16,7 @@ public class ConveyorNode<T> implements Comparable<ConveyorNode<T>>{
      private Integer distance;
      private ConveyorNode<T> previous;
      protected Map<T, Integer> neighbours;
+     private Double minDistance = Double.POSITIVE_INFINITY;
 
      public ConveyorNode(T data) {
          this.nodeName = data;
@@ -46,14 +47,49 @@ public class ConveyorNode<T> implements Comparable<ConveyorNode<T>>{
          this.previous = previous;
      }
 
+     @Override
      public int compareTo(ConveyorNode<T> other) {
-         return distance.compareTo(other.getDistance());
+         return Double.compare(minDistance, other.minDistance);
      }
 
      @Override
      public String toString() {
          return nodeName.toString();
      }
+
+	/**
+	 * @return the minDistance
+	 */
+	public Double getMinDistance() {
+		return minDistance;
+	}
+
+	/**
+	 * @param minDistance the minDistance to set
+	 */
+	public void setMinDistance(Double minDistance) {
+		this.minDistance = minDistance;
+	}
+	
+	@Override
+    public boolean equals(Object obj){
+        if (this == obj){
+            return true;
+        }
+
+        if (obj == null || !(obj instanceof ConveyorNode)){
+            return false;
+        }
+
+        ConveyorNode<T> other = (ConveyorNode<T>) obj;
+
+        return (this.nodeName.equals(other.nodeName));
+    }
+	
+	@Override
+    public int hashCode() {
+        return nodeName.hashCode();
+    }
 
 	
 

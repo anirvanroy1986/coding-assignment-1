@@ -61,5 +61,10 @@ public class ConveyorRoute<T> {
 		this.distance = distance;
 	}
 	
+	@Override
+    public String toString() {
+        return "Link [" + from.getNodeName() + "->" + to.getNodeName() + " : " + distance + "]";
+    }
+	
 
 }
