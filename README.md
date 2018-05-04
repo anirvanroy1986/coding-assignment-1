@@ -5,11 +5,11 @@ Takes in an input file as a parameter to the jar and prints the Baggage route in
 
 Format of the Input file:
 ``shell
-# Section: Conveyor System
+Section: Conveyor System
 Node 1> <Node 2> <travel_time>
-# Section: Departures
+Section: Departures
 <flight_id> <flight_gate> <destination> <flight_time>
-# Section: Bags
+Section: Bags
 <Bag_Number> <point_1> <point_2> [<point_3>, …] : <total_travel_time>
 
 **Build**
