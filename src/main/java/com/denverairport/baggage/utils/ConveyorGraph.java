@@ -13,6 +13,9 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.denverairport.baggage.model.ConveyorRoute;
 import com.denverairport.baggage.model.Path;
 import com.denverairport.baggage.model.ConveyorNode;
@@ -22,6 +25,8 @@ import com.denverairport.baggage.model.ConveyorNode;
  *
  */
 public class ConveyorGraph<T> {
+	
+	private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 	
 	//Nodes represented by Adjacency List
 	private Map<String, Set<ConveyorRoute<T>>> adjacencyList;
@@ -62,40 +67,11 @@ public class ConveyorGraph<T> {
         	adjacencyList.get(start.getNodeName()).add(new ConveyorRoute<T>(start, dest, distance));
      }
     
-    /**
-     * Checks if destination node is connected to the source node
-     * @param start
-     * @param dest
-     * @return
-     */
-    public boolean isConnected(ConveyorNode<T> start, ConveyorNode<T> dest) {
-    		Set<ConveyorRoute<T>> set = adjacencyList.get(start.getNodeName());
-    		for(ConveyorRoute<T> route: set) {
-    			if(route.getTo().getNodeName().equals(dest.getNodeName())) {
-    				return true;
-    			}
-    		}
-    		return false;
-    }
     
     /**
-     * Returns the distance between 2 nodes. If connecting node not found, 
-     * returns -1
-     * @param start
-     * @param dest
+     * Returns all available nodes present in the Graph. Returns a Deep Copy
      * @return
      */
-    public int getDistanceBetweenNodes(ConveyorNode<T> start, ConveyorNode<T> dest) {
-    	Set<ConveyorRoute<T>> set = adjacencyList.get(start);
-		for(ConveyorRoute<T> route: set) {
-			if(route.getTo().getNodeName().equals(dest.getNodeName())) {
-				return route.getDistance();
-			}
-		}
-		
-		return -1;
-    }
-    
     public Set<ConveyorNode<T>> getNodes(){
     		Set<ConveyorNode<T>> nodeSet = new HashSet<>();
     		for(ConveyorNode<T> node : nodes) {
@@ -104,6 +80,10 @@ public class ConveyorGraph<T> {
     		return nodeSet;
     }
     
+    /**
+     * Returns all available edges present for nodes in the Graph
+     * @return
+     */
     public Set<ConveyorRoute<T>> getEdges(){
     		Set<ConveyorRoute<T>> edges = new HashSet<>();
     		adjacencyList.entrySet().stream().forEachOrdered((entry) -> {
@@ -112,6 +92,12 @@ public class ConveyorGraph<T> {
     		return edges;
     }
     
+    /**
+     * Used to return a Deep copy of the Adjacency List of the Undirected Graph, so 
+     * that dijkstras could be applied between source and destination nodes without any
+     * issue 
+     * @return
+     */
     @SuppressWarnings("unchecked")
 	public Map<String, Set<ConveyorRoute<T>>> copyAdjacencyList(){
     	
@@ -132,8 +118,16 @@ public class ConveyorGraph<T> {
     }
     
     
-    
+    /**
+     * Run Dijkstras between Source and Destination
+     * Algorithm referred from Stack Overflow, Medium
+     * @param source
+     * @param target
+     * @return
+     */
     public List<ConveyorNode<T>> findShortestPath(ConveyorNode<T> source, ConveyorNode<T> target) {
+    	LOGGER.info("Running Dijkstras between source node "+source.getNodeName()
+    	+" and destination node "+target.getNodeName());
         List<ConveyorNode<T>> shortestPath = new ArrayList<>();
         try {
         	source.setMinDistance(0D);
@@ -153,40 +147,30 @@ public class ConveyorGraph<T> {
             Map<String, Set<ConveyorRoute<T>>> listMap = copyAdjacencyList();
 
             while (!vertexQueue.isEmpty()) {
-                ConveyorNode<T> u = vertexQueue.poll();
+                ConveyorNode<T> node = vertexQueue.poll();
 
-                if (u.equals(target)) {
-                    while (u.getPrevious() != null) {
-                        shortestPath.add(u);
-                        u = u.getPrevious();
+                if (node.equals(target)) {
+                    while (node.getPrevious() != null) {
+                        shortestPath.add(node);
+                        node = node.getPrevious();
                     }
                     break;
                 }
 
-                vertexQueue.remove(u);
-                /*Set<ConveyorRoute<T>> edges = null;
-                
-                for (Map.Entry<ConveyorNode<T>,Set<ConveyorRoute<T>>> entry : adjacencyList.entrySet()) {
-                		if(entry.getKey().getNodeName().equals(u.getNodeName())) {
-                			 edges = entry.getValue();
-                		}
-                }*/
-                
-                
+                vertexQueue.remove(node);
                
-                Set<ConveyorRoute<T>> edges = listMap.get(u.getNodeName());
+                Set<ConveyorRoute<T>> edges = listMap.get(node.getNodeName());
                 if(edges != null) {
 	                	for (ConveyorRoute<T> edge : edges) {
 	                        ConveyorNode<T> v = edge.getTo();
 	
 	                        double weight = edge.getDistance();
-	                        double distanceThroughU = u.getMinDistance()  + weight;
+	                        double distanceThroughU = node.getMinDistance()  + weight;
 	
 	                        if (distanceThroughU < (v.getMinDistance())) {
-	                        	   //vertexQueue.remove(v);
+	                        	   vertexQueue.remove(v);
 	                            v.setMinDistance(distanceThroughU);
-	                            v.setPrevious(u);
-	                            vertexQueue.remove(v);
+	                            v.setPrevious(node);
 	                            vertexQueue.add(v);
 	                        }
 	                    }
@@ -195,31 +179,11 @@ public class ConveyorGraph<T> {
             }
 
         }catch(Exception e) {
-        		e.printStackTrace();
+        	LOGGER.error("Exception Occurred while calculating Shortest path between nodes: "+e.getMessage());
         }
         
         Collections.reverse(shortestPath);
        return shortestPath;
-    }
-    
-    public void setPath(Path<String> path, List<ConveyorNode<String>> shortestPathList) {
-    	
-    	
-        if (!shortestPathList.isEmpty()) {
-        		
-            @SuppressWarnings("unchecked")
-			ConveyorNode<String> prevNode = (ConveyorNode<String>) shortestPathList.get(0);
-            for (int i = 1; i < shortestPathList.size(); i++) {
-                @SuppressWarnings("unchecked")
-				ConveyorNode<String> current = (ConveyorNode<String>) shortestPathList.get(i);
-                prevNode = current;
-                
-            }
-            path.setDistance(prevNode.getMinDistance().intValue());
-            path.setNodes(shortestPathList);
-        }
-        
-    	
     }
     
     @Override

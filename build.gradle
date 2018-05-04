@@ -14,8 +14,29 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'application'
 
-group = 'com.denverairport.baggagesystem'
+mainClassName = 'com.denverairport.baggage.Application'
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+    }
+    test {
+        java {
+            srcDir 'src/test/java'
+        }
+    }
+}
+
+bootJar {
+    baseName = 'coding-assignment1'
+    version =  '0.1.0'
+}
+
+group = 'com.denverairport.baggage'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
 
@@ -27,4 +48,21 @@ repositories {
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+test {
+    // Print in console the result of test
+    afterTest { test, result ->
+        println "Executing test ${test.name} [${test.className}] with result: ${result.resultType}"
+    }
+}
+
+jar {
+    manifest {
+        attributes(
+                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                'Main-Class': 'com.denverairport.baggage.Application'
+        )
+    }
 }

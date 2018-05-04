@@ -71,23 +71,36 @@ public class ConveyorGraphTest {
 		List<ConveyorNode<String>> shortestPathList = graph.findShortestPath(nodeA, nodeD);
 		
 		StringBuilder output = new StringBuilder();
+		ConveyorNode<String> prevNode = null;
         if (!shortestPathList.isEmpty()) {
         		
-            ConveyorNode<String> prevNode = shortestPathList.get(0);
-            output.append(prevNode.getNodeName() + " ");
-
+            prevNode = shortestPathList.get(0);
             for (int i = 1; i < shortestPathList.size(); i++) {
                 ConveyorNode<String> current = shortestPathList.get(i);
                 prevNode = current;
                 output.append(current.getNodeName() + " ");
             }
-            output.append(": " + prevNode.getMinDistance());
             output.append(System.lineSeparator());
         }
-        System.out.println(output.toString());
-		
-		ConveyorNode<String> prevNode = shortestPathList.get(0);
-		assertEquals(7, prevNode.getMinDistance().intValue());
+        assertEquals(7, prevNode.getMinDistance().intValue());
+	}
+	
+	@Test
+	public void testNoRouteExists() {
+		ConveyorNode<String> nodeA = new ConveyorNode<>("A1");
+		ConveyorNode<String> nodeD = new ConveyorNode<>("A5");
+		List<ConveyorNode<String>> shortestPathList = graph.findShortestPath(nodeA, nodeD);
+		assertEquals(0, shortestPathList.size());
+	}
+	
+	@Test
+	public void testGetNodes() {
+		assertTrue(!graph.getNodes().isEmpty());
+	}
+	
+	@Test
+	public void testGetEdges() {
+		assertTrue(!graph.getEdges().isEmpty());
 	}
 
 }

@@ -52,7 +52,7 @@ public class BaggageServiceImpl implements BaggageService {
 			} else {
 				destNode = new ConveyorNode<String>(flightMap.get(bagsInfo.getDestination()).getDepartureGate());
 			}
-
+			//Run Dijkstras to compute paths and sum of distances
 			List<ConveyorNode<String>> nodeList = inputGraph.findShortestPath(sourceNode, destNode);
 			BaggageRoute route = getPath(nodeList, bagsInfo.getBaggageId(), sourceNode.getNodeName());
 

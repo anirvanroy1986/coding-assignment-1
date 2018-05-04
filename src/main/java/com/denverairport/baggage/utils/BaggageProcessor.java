@@ -11,6 +11,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.denverairport.baggage.constants.Constants;
@@ -19,6 +21,11 @@ import com.denverairport.baggage.model.ConveyorNode;
 import com.denverairport.baggage.model.Flight;
 
 /**
+ * BaggageProcessor is used to parse the input provided in the text format and create
+ * 1) Undirected weighted Graph
+ * 2) Departure Map, mapping Flight number to Flight object
+ * 3) Baggage Map (The actual input for processing)
+ * 
  * @author anirvanroy
  *
  */
@@ -26,6 +33,8 @@ import com.denverairport.baggage.model.Flight;
 @Service
 public class BaggageProcessor {
 
+	private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+	
 	private ConveyorGraph<String> graph = null;
 	private Map<String, Baggage> bags = null;
 	private Map<String, Flight> departureMap = null;
@@ -83,48 +92,46 @@ public class BaggageProcessor {
 	 * @throws FileNotFoundException
 	 */
 	public void init(String file) throws FileNotFoundException {
+		LOGGER.info("Parsing Input File**** Starts");
 		Scanner in = null;
 		try {
 			in = new Scanner(new FileInputStream(file));
 			String currentInputSection = "";
-
+		
 			while (in.hasNextLine()) {
 				String input = in.nextLine();
 				if (input.startsWith(Constants.INPUT_CONVEYOR_SECTION)) {
-					currentInputSection = "conveyor";
+					currentInputSection = Constants.CONVEYOR;
 				} else if (input.startsWith(Constants.INPUT_DEPATURE_SECTION)) {
-
-					currentInputSection = "departures";
-
+					currentInputSection = Constants.DEPARTURES;
 				} else if (input.startsWith(Constants.INPUT_BAGS_SECTIOn)) {
-
-					currentInputSection = "bags";
-
+					currentInputSection = Constants.BAGS;
 				}
 
-				if (currentInputSection.equals("conveyor") || currentInputSection.equalsIgnoreCase("")) {
-					currentInputSection = "conveyor";
+				if (currentInputSection.equals(Constants.CONVEYOR) || currentInputSection.equalsIgnoreCase("")) {
+					currentInputSection = Constants.CONVEYOR;
 					parseConveyorInput(input);
-				} else if (currentInputSection.equals("departures") || currentInputSection.equalsIgnoreCase("")) {
-					currentInputSection = "departures";
+				} else if (currentInputSection.equals(Constants.DEPARTURES) || currentInputSection.equalsIgnoreCase("")) {
+					currentInputSection = Constants.DEPARTURES;
 					parseDepartureInput(input);
-				} else if (currentInputSection.equals("bags") || currentInputSection.equalsIgnoreCase("")) {
-					currentInputSection = "bags";
+				} else if (currentInputSection.equals(Constants.BAGS) || currentInputSection.equalsIgnoreCase("")) {
+					currentInputSection = Constants.BAGS;
 					parseBaggageInput(input);
 				}
 
 			}
 		} catch (IOException ioE) {
-			System.out.println("Exception Occurred while parsing input file: " + ioE.getMessage());
+			LOGGER.error("Exception Occurred while parsing input file: " + ioE.getMessage());
 		} finally {
 			in.close();
 		}
+		LOGGER.info("Parsing Input File**** Ends");
 
 	}
 
 	/**
-	 * Parses input file and creates a Conveyor map
-	 * 
+	 * Parses input file and creates an UnDirected weighted Graph
+	 * Format: <Node 1> <Node 2> <travel_time>
 	 * @param line
 	 */
 	public void parseConveyorInput(String line) {
@@ -133,13 +140,15 @@ public class BaggageProcessor {
 		} else {
 			String[] lineInputArray = line.split(" ");
 			if (lineInputArray.length != 3) {
+				LOGGER.error("Invalid Input format provided for Conveyor section ");
 				throw new IllegalArgumentException("Invalid Input format provided for Conveyor section");
 			} else {
 				ConveyorNode<String> sourceNode = new ConveyorNode<>(lineInputArray[0]);
 				ConveyorNode<String> destNode = new ConveyorNode<>(lineInputArray[1]);
-				//sourceNode.setPrevious(destNode);
+				
 				graph.addVertex(sourceNode);
 				graph.addEdge(sourceNode, destNode, Integer.parseInt(lineInputArray[2]));
+				//Add Bi-Directional relation
 				graph.addVertex(destNode);
 				graph.addEdge(destNode, sourceNode, Integer.parseInt(lineInputArray[2]));
 
@@ -149,8 +158,8 @@ public class BaggageProcessor {
 	}
 
 	/**
-	 * Parses input file and creates a Departures Map
-	 * 
+	 * Parses input file and creates a Departures Map. 
+	 * Format: <flight_id> <flight_gate> <destination> <flight_time>
 	 * @param line
 	 */
 	public void parseDepartureInput(String line) {
@@ -159,6 +168,7 @@ public class BaggageProcessor {
 		} else {
 			String[] lineInputArray = line.split(" ");
 			if (lineInputArray.length != 4) {
+				LOGGER.error("Invalid Input format provided for Departure section ");
 				throw new IllegalArgumentException("Invalid Input format provided for Departure section");
 			} else {
 				Flight flight = new Flight(lineInputArray[0], lineInputArray[1], lineInputArray[2], lineInputArray[3]);
@@ -171,7 +181,7 @@ public class BaggageProcessor {
 
 	/**
 	 * Parses input file and creates a Baggage map
-	 * 
+	 * Format: <bag_number> <entry_point> <flight_id>
 	 * @param line
 	 */
 	public void parseBaggageInput(String line) {
@@ -180,7 +190,8 @@ public class BaggageProcessor {
 		} else {
 			String[] lineInputArray = line.split(" ");
 			if (lineInputArray.length != 3) {
-				throw new IllegalArgumentException("Invalid Input format provided for Departure section");
+				LOGGER.error("Invalid Input format provided for Bags section ");
+				throw new IllegalArgumentException("Invalid Input format provided for Bags section");
 			} else {
 				Baggage baggage = new Baggage(lineInputArray[0], lineInputArray[1], lineInputArray[2]);
 				bags.put(baggage.getBaggageId(), baggage);
