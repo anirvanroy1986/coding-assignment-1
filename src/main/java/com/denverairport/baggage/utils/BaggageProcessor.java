@@ -11,6 +11,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import org.springframework.stereotype.Service;
+
 import com.denverairport.baggage.constants.Constants;
 import com.denverairport.baggage.model.Baggage;
 import com.denverairport.baggage.model.ConveyorNode;
@@ -20,6 +22,8 @@ import com.denverairport.baggage.model.Flight;
  * @author anirvanroy
  *
  */
+
+@Service
 public class BaggageProcessor {
 
 	private ConveyorGraph<String> graph = null;

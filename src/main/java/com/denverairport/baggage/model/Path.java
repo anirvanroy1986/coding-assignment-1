@@ -3,8 +3,8 @@
  */
 package com.denverairport.baggage.model;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author anirvanroy
@@ -14,14 +14,15 @@ public class Path<T> {
 	
 
     private final String PATH_SEPARATOR = " ";
-    private Set<ConveyorNode<T>> nodes;
+    private List<ConveyorNode<T>> nodes;
     private int distance;
+    private String sourceNode;
 
     /**
      * Creates a new empty {@code ConveyorPath}.
      */
     public Path() {
-        this.nodes = new HashSet<>();
+        this.nodes = new ArrayList<>();
         this.distance = 0;
     }
 
@@ -31,7 +32,7 @@ public class Path<T> {
      * @param nodes  {@code List} of nodes that make up the path.
      * @param length length of path.
      */
-    public Path(Set<ConveyorNode<T>> nodes, int length) {
+    public Path(List<ConveyorNode<T>> nodes, int length) {
         this.nodes = nodes;
         this.distance = length;
     }
@@ -55,7 +56,7 @@ public class Path<T> {
      *
      * @return {@code List} of nodes.
      */
-    public Set<ConveyorNode<T>> getNodes() {
+    public List<ConveyorNode<T>> getNodes() {
         return nodes;
     }
 
@@ -80,6 +81,41 @@ public class Path<T> {
         
         return sb.toString();
     }
+
+	/**
+	 * @return the distance
+	 */
+	public int getDistance() {
+		return distance;
+	}
+
+	/**
+	 * @param distance the distance to set
+	 */
+	public void setDistance(int distance) {
+		this.distance = distance;
+	}
+
+	/**
+	 * @param shortestPathList the nodes to set
+	 */
+	public void setNodes(List<ConveyorNode<T>> shortestPathList) {
+		this.nodes = shortestPathList;
+	}
+
+	/**
+	 * @return the sourceNode
+	 */
+	public String getSourceNode() {
+		return sourceNode;
+	}
+
+	/**
+	 * @param sourceNode the sourceNode to set
+	 */
+	public void setSourceNode(String sourceNode) {
+		this.sourceNode = sourceNode;
+	}
 
 
 }

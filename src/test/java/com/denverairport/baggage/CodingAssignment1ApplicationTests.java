@@ -1,4 +1,4 @@
-package com.denverairport.baggagesystem.codingassignment1;
+package com.denverairport.baggage;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

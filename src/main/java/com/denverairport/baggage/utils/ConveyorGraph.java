@@ -14,6 +14,7 @@ import java.util.PriorityQueue;
 import java.util.Set;
 
 import com.denverairport.baggage.model.ConveyorRoute;
+import com.denverairport.baggage.model.Path;
 import com.denverairport.baggage.model.ConveyorNode;
 
 /**
@@ -53,6 +54,10 @@ public class ConveyorGraph<T> {
     public void addEdge(ConveyorNode<T> start, ConveyorNode<T> dest, int distance) {
         if (!adjacencyList.containsKey(start.getNodeName())) {
         		addVertex(start);
+        }
+        
+        if(!adjacencyList.containsKey(dest.getNodeName())) {
+        		addVertex(dest);
         }
         	adjacencyList.get(start.getNodeName()).add(new ConveyorRoute<T>(start, dest, distance));
      }
@@ -194,8 +199,27 @@ public class ConveyorGraph<T> {
         }
         
         Collections.reverse(shortestPath);
-
-        return shortestPath;
+       return shortestPath;
+    }
+    
+    public void setPath(Path<String> path, List<ConveyorNode<String>> shortestPathList) {
+    	
+    	
+        if (!shortestPathList.isEmpty()) {
+        		
+            @SuppressWarnings("unchecked")
+			ConveyorNode<String> prevNode = (ConveyorNode<String>) shortestPathList.get(0);
+            for (int i = 1; i < shortestPathList.size(); i++) {
+                @SuppressWarnings("unchecked")
+				ConveyorNode<String> current = (ConveyorNode<String>) shortestPathList.get(i);
+                prevNode = current;
+                
+            }
+            path.setDistance(prevNode.getMinDistance().intValue());
+            path.setNodes(shortestPathList);
+        }
+        
+    	
     }
     
     @Override

@@ -15,8 +15,8 @@ import com.denverairport.baggage.utils.BaggageProcessor;
 public interface BaggageService {
 	
 	/**
-	 * Method to return a list of optimal route for Baggages to be handled
-	 * @return
+	 * Method to process list of Bags by referring to a Undirected weighted Graph
+	 * and calculate the optimum route between Airport gates
 	 */
 	public List<BaggageRoute> getBaggageRoutes(BaggageProcessor processor);
 
