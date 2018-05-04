@@ -63,7 +63,7 @@ public class ConveyorRoute<T> {
 	
 	@Override
     public String toString() {
-        return "Link [" + from.getNodeName() + "->" + to.getNodeName() + " : " + distance + "]";
+        return "Route-----> <" + from.getNodeName() + "->" + to.getNodeName() + " : " + distance + ">";
     }
 	
 
