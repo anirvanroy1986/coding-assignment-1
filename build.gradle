@@ -18,6 +18,17 @@ apply plugin: 'application'
 
 mainClassName = 'com.denverairport.baggage.Application'
 
+task createJar(type: Jar) {
+	manifest {
+        attributes 'Implementation-Title': 'Baggage-Route Jar',  
+        	'Implementation-Version': '1.0.1',
+        	'Main-Class': 'com.denverairport.baggage.Application'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 sourceSets {
     main {
         java {
